@@ -71,6 +71,14 @@ func (h *userHandle) LoginUser_api(c *fiber.Ctx) error {
 }
 
 func (h *userHandle) GetUsers_api(c *fiber.Ctx) error {
+	user_token := fmt.Sprintf("%v", c.Locals("username"))
+
+	if user_token != "admin" {
+		err := fmt.Errorf("Username token must be of admin ")
+		log.Println("error", err)
+		return c.Status(http.StatusInternalServerError).JSON(err_response(err))
+	}
+
 	users, err := h.userSrc.GetUsers()
 	if err != nil {
 		log.Println("error", err)
@@ -148,7 +156,6 @@ func (h *userHandle) DeleteUser_api(c *fiber.Ctx) error {
 		err := fmt.Errorf("Username token must be of admin ")
 		log.Println("error", err)
 		return c.Status(http.StatusInternalServerError).JSON(err_response(err))
-
 	}
 
 	user, err := h.userSrc.DeleteUser(user_id)
