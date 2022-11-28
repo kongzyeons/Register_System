@@ -1,7 +1,5 @@
 package service
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
-
 type UserService interface {
 	GetUsers() ([]UserResponse, error)
 	GetUser(user_id string) (*UserResponse, error)
@@ -21,12 +19,12 @@ type UserRequest struct {
 }
 
 type UserResponse struct {
-	UserID           primitive.ObjectID `json:"userID" bson:"userID"`
-	Username         string             `json:"username" bson:"username" validate:"required"`
-	Firstname        string             `json:"firstname" bson:"firstname" validate:"required"`
-	Lastname         string             `json:"lastname" bson:"lastname" validate:"required"`
-	Birthdate        string             `json:"birthdate" bson:"birthdate" validate:"required"`
-	Programing_skill []string           `json:"programing_skill" bson:"programing_skill" validate:"required"`
+	UserID           string   `json:"userID" bson:"userID"`
+	Username         string   `json:"username" bson:"username" validate:"required"`
+	Firstname        string   `json:"firstname" bson:"firstname" validate:"required"`
+	Lastname         string   `json:"lastname" bson:"lastname" validate:"required"`
+	Birthdate        string   `json:"birthdate" bson:"birthdate" validate:"required"`
+	Programing_skill []string `json:"programing_skill" bson:"programing_skill" validate:"required"`
 }
 
 type UpdateRequest struct {
@@ -37,8 +35,8 @@ type UpdateRequest struct {
 }
 
 type DeleteResponse struct {
-	UserID   primitive.ObjectID `json:"userID" bson:"userID"`
-	Username string             `json:"username" bson:"username" validate:"required"`
+	UserID   string `json:"userID" bson:"userID"`
+	Username string `json:"username" bson:"username" validate:"required"`
 }
 
 type UserLogin struct {

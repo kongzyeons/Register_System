@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -19,8 +19,8 @@ func NewUserRepositoryDB(db *mongo.Client) UserRepository {
 }
 
 const (
-	DBName     = "" //kong_test
-	collection = "" //user2
+	DBName     = "kong_test" //kong_test
+	collection = "users"     //user2
 )
 
 func (r *userRepositoryDB) getCollection() *mongo.Collection {
@@ -33,10 +33,21 @@ func (r *userRepositoryDB) Create(user User_db) (*User_db, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	// check username
 	err := collection.FindOne(ctx, bson.M{"username": user.Username}).Decode(&user)
 	// if found username
 	if err == nil {
 		return nil, fmt.Errorf("This username : '%s' already exists.", user.Username)
+	}
+
+	// create and check userID
+	user_id := uuid.New().String()
+	err = collection.FindOne(ctx, bson.M{"userID": user_id}).Decode(&user)
+	user.UserID = user_id
+	for err == nil {
+		user_id := uuid.New().String()
+		err = collection.FindOne(ctx, bson.M{"userID": user_id}).Decode(&user)
+		user.UserID = user_id
 	}
 
 	_, err = collection.InsertOne(ctx, &user)
@@ -51,10 +62,12 @@ func (r *userRepositoryDB) Login(user User_db) (*User_db, error) {
 	defer cancel()
 
 	getuser := User_db{}
+	// check username
 	err := collection.FindOne(ctx, bson.M{"username": user.Username}).Decode(&getuser)
 	if err != nil {
 		return nil, fmt.Errorf("Not found username :'%s'", user.Username)
 	}
+	// check username and password
 	err = collection.FindOne(ctx, bson.M{"username": user.Username, "password": user.Password}).Decode(&getuser)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid Login or password.")
@@ -87,8 +100,7 @@ func (r *userRepositoryDB) GetById(user_id string) (*User_db, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	objId, _ := primitive.ObjectIDFromHex(user_id)
-	err := collection.FindOne(ctx, bson.M{"userID": objId}).Decode(&user)
+	err := collection.FindOne(ctx, bson.M{"userID": user_id}).Decode(&user)
 	if err != nil {
 		return nil, err
 	}
@@ -100,26 +112,29 @@ func (r *userRepositoryDB) Update(user_id string, updatedUser User_db) (*User_db
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	user_db, _ := r.GetById(user_id)
+	// check verion update
+	user_db, err := r.GetById(user_id)
+	if err != nil {
+		return nil, err
+	}
 	version := user_db.Version
 	for updatedUser.Version != version {
 		user_db, _ = r.GetById(user_id)
 		updatedUser.Version = user_db.Version
 	}
-
 	updatedUser.Version = updatedUser.Version + 1
+
 	update := bson.M{"firstname": updatedUser.Firstname, "lastname": updatedUser.Lastname,
 		"birthdate": updatedUser.Birthdate, "programing_skill": updatedUser.Programing_skill,
 		"version": updatedUser.Version}
-	objId, _ := primitive.ObjectIDFromHex(user_id)
-	result, err := collection.UpdateOne(ctx, bson.M{"userID": objId}, bson.M{"$set": update})
+	result, err := collection.UpdateOne(ctx, bson.M{"userID": user_id}, bson.M{"$set": update})
 	if err != nil {
-		return &updatedUser, err
+		return nil, err
 	}
 	if result.MatchedCount == 1 {
-		err := collection.FindOne(ctx, bson.M{"userID": objId}).Decode(&updatedUser)
+		err := collection.FindOne(ctx, bson.M{"userID": user_id}).Decode(&updatedUser)
 		if err != nil {
-			return &updatedUser, err
+			return nil, err
 		}
 		return &updatedUser, err
 	}
@@ -132,16 +147,17 @@ func (r *userRepositoryDB) Delete(user_id string) (*User_db, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	objId, _ := primitive.ObjectIDFromHex(user_id)
-	user_db, _ := r.GetById(user_id)
-
-	// filter := bson.M{"$and": []interface{}{bson.M{"_id": objId}, bson.M{"username": username}}}
-	result, err := collection.DeleteOne(ctx, bson.M{"userID": objId})
+	// delete from userid
+	user_db, err := r.GetById(user_id)
 	if err != nil {
-		return user_db, err
+		return nil, err
+	}
+	result, err := collection.DeleteOne(ctx, bson.M{"userID": user_id})
+	if err != nil {
+		return nil, err
 	}
 	if result.DeletedCount < 1 {
-		return user_db, fmt.Errorf("Not found User_id :'%s'", user_id)
+		return nil, fmt.Errorf("Not found User_id :'%s'", user_id)
 	}
 	return user_db, err
 

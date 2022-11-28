@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type userService struct {
@@ -23,12 +22,10 @@ func (s *userService) CreateUser(newUser *UserRequest) (*UserResponse, error) {
 
 	h := sha256.New()
 	h.Write([]byte(newUser.Password))
-	sha256_hash := hex.EncodeToString(h.Sum(nil))
-
+	password_sha256 := hex.EncodeToString(h.Sum(nil))
 	userCreate := repository.User_db{
-		UserID:           primitive.NewObjectID(),
 		Username:         newUser.Username,
-		Password:         sha256_hash,
+		Password:         password_sha256,
 		Firstname:        newUser.Firstname,
 		Lastname:         newUser.Lastname,
 		Birthdate:        newUser.Birthdate,

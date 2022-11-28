@@ -21,6 +21,6 @@ func SetupRouters(route *config.Fiber_fw, connectionDB *mongo.Client) {
 	private.Post("/api/v1/data", userHandle.CreateUser_api)
 	private.Get("/api/v1/data", userHandle.GetUsers_api)
 	private.Get("/api/v1/data/:user_id", userHandle.GetUser_api)
-	private.Put(" /api/v1/data/:user_id", userHandle.UpdateUser_api)
+	private.Put("/api/v1/data/:user_id", userHandle.UpdateUser_api)
 	private.Delete("/api/v1/data/:user_id", userHandle.DeleteUser_api)
 }

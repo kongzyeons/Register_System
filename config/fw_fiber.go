@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 type Fiber_fw struct {
@@ -14,6 +15,10 @@ func NewframeworkFiber() *Fiber_fw {
 
 func (f *Fiber_fw) Default() {
 	f.engine = fiber.New()
+	f.engine.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+	}))
 }
 
 func (f *Fiber_fw) Get(pathurl string, api func(*fiber.Ctx) error) {

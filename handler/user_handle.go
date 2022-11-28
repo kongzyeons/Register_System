@@ -66,7 +66,7 @@ func (h *userHandle) LoginUser_api(c *fiber.Ctx) error {
 		MessageResponse{
 			Status:  true,
 			Message: "Authenticate",
-			Data:    &fiber.Map{"data": tokenString}})
+			Data:    &fiber.Map{"token": tokenString}})
 
 }
 
