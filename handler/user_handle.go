@@ -77,8 +77,12 @@ func (h *userHandle) LoginUser_api(ctx *fiber.Ctx) error {
 
 }
 
+<<<<<<< HEAD
 func (h *userHandle) GetUsers_api(ctx *fiber.Ctx) error {
 	c := connectionFW(ctx)
+=======
+func (h *userHandle) GetUsers_api(c *fiber.Ctx) error {
+>>>>>>> 87a03f1a9861417ff25cd1052f53f1f461cbd4f0
 	user_token := fmt.Sprintf("%v", c.Locals("username"))
 
 	if user_token != "admin" {
