@@ -20,7 +20,7 @@ func NewUserRepositoryDB(db *mongo.Client) UserRepository {
 
 const (
 	DBName     = "kong_test" //kong_test
-	collection = "users"     //user2
+	collection = "users2"    //user2
 )
 
 func (r *userRepositoryDB) getCollection() *mongo.Collection {

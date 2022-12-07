@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"go_test/config"
 	"go_test/service"
 	"log"
 	"net/http"
@@ -18,7 +19,13 @@ func NewUserHandle(userSrc service.UserService) UserHandle {
 	return &userHandle{userSrc: userSrc}
 }
 
-func (h *userHandle) CreateUser_api(c *fiber.Ctx) error {
+func connectionFW(c *fiber.Ctx) *config.FiberCtx {
+	context := config.NewFiberCtx(c)
+	return context
+}
+
+func (h *userHandle) CreateUser_api(ctx *fiber.Ctx) error {
+	c := connectionFW(ctx)
 	user := service.UserRequest{}
 	if err := c.BodyParser(&user); err != nil {
 		log.Println("error", err)
@@ -35,16 +42,16 @@ func (h *userHandle) CreateUser_api(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).JSON(err_response(err))
 	}
 
-	log.Println("success", c.Status(http.StatusCreated))
-	return c.Status(http.StatusCreated).JSON(
-		MessageResponse{
-			Status:  true,
-			Message: "Create data",
-			Data:    &fiber.Map{"data": userCreate}})
+	// log.Println("success", c.Status(http.StatusCreated))
+	return c.JSON(http.StatusBadRequest, MessageResponse{
+		Status:  true,
+		Message: "Create data",
+		Data:    &fiber.Map{"data": userCreate}})
 
 }
 
-func (h *userHandle) LoginUser_api(c *fiber.Ctx) error {
+func (h *userHandle) LoginUser_api(ctx *fiber.Ctx) error {
+	c := connectionFW(ctx)
 	user := service.UserLogin{}
 	if err := c.BodyParser(&user); err != nil {
 		log.Println("error", err)
@@ -70,7 +77,16 @@ func (h *userHandle) LoginUser_api(c *fiber.Ctx) error {
 
 }
 
-func (h *userHandle) GetUsers_api(c *fiber.Ctx) error {
+func (h *userHandle) GetUsers_api(ctx *fiber.Ctx) error {
+	c := connectionFW(ctx)
+	user_token := fmt.Sprintf("%v", c.Locals("username"))
+
+	if user_token != "admin" {
+		err := fmt.Errorf("Username token must be of admin ")
+		log.Println("error", err)
+		return c.Status(http.StatusInternalServerError).JSON(err_response(err))
+	}
+
 	users, err := h.userSrc.GetUsers()
 	if err != nil {
 		log.Println("error", err)
@@ -84,8 +100,9 @@ func (h *userHandle) GetUsers_api(c *fiber.Ctx) error {
 			Data:    &fiber.Map{"count user": len(users), "data": users}})
 }
 
-func (h *userHandle) GetUser_api(c *fiber.Ctx) error {
-	user_id := c.Params("user_id")
+func (h *userHandle) GetUser_api(ctx *fiber.Ctx) error {
+	c := connectionFW(ctx)
+	user_id := c.ParamsID("user_id")
 	id_token := fmt.Sprintf("%v", c.Locals("user_id"))
 	if user_id != id_token {
 		err := fmt.Errorf("user_id or token is incorrect (repeat logon)")
@@ -106,10 +123,13 @@ func (h *userHandle) GetUser_api(c *fiber.Ctx) error {
 			Data:    &fiber.Map{"data": user}})
 }
 
-func (h *userHandle) UpdateUser_api(c *fiber.Ctx) error {
-	user_id := c.Params("user_id")
+func (h *userHandle) UpdateUser_api(ctx *fiber.Ctx) error {
+	c := connectionFW(ctx)
+	user_id := c.ParamsID("user_id")
 	id_token := fmt.Sprintf("%v", c.Locals("user_id"))
-	if user_id != id_token {
+	user_token := fmt.Sprintf("%v", c.Locals("username"))
+
+	if (user_token != "admin") && (user_id != id_token) {
 		err := fmt.Errorf("user_id or token is incorrect (repeat logon)")
 		log.Println("error", err)
 		return c.Status(http.StatusInternalServerError).JSON(err_response(err))
@@ -139,8 +159,9 @@ func (h *userHandle) UpdateUser_api(c *fiber.Ctx) error {
 
 }
 
-func (h *userHandle) DeleteUser_api(c *fiber.Ctx) error {
-	user_id := c.Params("user_id")
+func (h *userHandle) DeleteUser_api(ctx *fiber.Ctx) error {
+	c := connectionFW(ctx)
+	user_id := c.ParamsID("user_id")
 	// id_token := fmt.Sprintf("%v", c.Locals("user_id"))
 	user_token := fmt.Sprintf("%v", c.Locals("username"))
 
@@ -148,7 +169,6 @@ func (h *userHandle) DeleteUser_api(c *fiber.Ctx) error {
 		err := fmt.Errorf("Username token must be of admin ")
 		log.Println("error", err)
 		return c.Status(http.StatusInternalServerError).JSON(err_response(err))
-
 	}
 
 	user, err := h.userSrc.DeleteUser(user_id)
