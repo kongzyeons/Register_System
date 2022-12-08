@@ -20,7 +20,7 @@ func NewUserRepositoryDB(db *mongo.Client) UserRepository {
 
 const (
 	DBName     = "kong_test" //kong_test
-	collection = "users2"    //user2
+	collection = "users"     //user2
 )
 
 func (r *userRepositoryDB) getCollection() *mongo.Collection {
@@ -37,7 +37,7 @@ func (r *userRepositoryDB) Create(user User_db) (*User_db, error) {
 	err := collection.FindOne(ctx, bson.M{"username": user.Username}).Decode(&user)
 	// if found username
 	if err == nil {
-		return nil, fmt.Errorf("This username : '%s' already exists.", user.Username)
+		return nil, fmt.Errorf("username not ready")
 	}
 
 	// create and check userID
@@ -65,7 +65,7 @@ func (r *userRepositoryDB) Login(user User_db) (*User_db, error) {
 	// check username
 	err := collection.FindOne(ctx, bson.M{"username": user.Username}).Decode(&getuser)
 	if err != nil {
-		return nil, fmt.Errorf("Not found username :'%s'", user.Username)
+		return nil, fmt.Errorf("Not found username")
 	}
 	// check username and password
 	err = collection.FindOne(ctx, bson.M{"username": user.Username, "password": user.Password}).Decode(&getuser)
@@ -157,7 +157,7 @@ func (r *userRepositoryDB) Delete(user_id string) (*User_db, error) {
 		return nil, err
 	}
 	if result.DeletedCount < 1 {
-		return nil, fmt.Errorf("Not found User_id :'%s'", user_id)
+		return nil, fmt.Errorf("Not found User_id")
 	}
 	return user_db, err
 

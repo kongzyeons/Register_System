@@ -43,7 +43,7 @@ func (h *userHandle) CreateUser_api(ctx *fiber.Ctx) error {
 	}
 
 	// log.Println("success", c.Status(http.StatusCreated))
-	return c.JSON(http.StatusBadRequest, MessageResponse{
+	return c.JSON(http.StatusCreated, MessageResponse{
 		Status:  true,
 		Message: "Create data",
 		Data:    &fiber.Map{"data": userCreate}})
@@ -69,7 +69,7 @@ func (h *userHandle) LoginUser_api(ctx *fiber.Ctx) error {
 	}
 
 	log.Println("success", c.Status(http.StatusOK))
-	return c.Status(http.StatusCreated).JSON(
+	return c.Status(http.StatusOK).JSON(
 		MessageResponse{
 			Status:  true,
 			Message: "Authenticate",
@@ -77,12 +77,9 @@ func (h *userHandle) LoginUser_api(ctx *fiber.Ctx) error {
 
 }
 
-<<<<<<< HEAD
 func (h *userHandle) GetUsers_api(ctx *fiber.Ctx) error {
 	c := connectionFW(ctx)
-=======
-func (h *userHandle) GetUsers_api(c *fiber.Ctx) error {
->>>>>>> 87a03f1a9861417ff25cd1052f53f1f461cbd4f0
+
 	user_token := fmt.Sprintf("%v", c.Locals("username"))
 
 	if user_token != "admin" {
