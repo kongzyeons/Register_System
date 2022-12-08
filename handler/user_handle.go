@@ -106,7 +106,7 @@ func (h *userHandle) GetUser_api(ctx *fiber.Ctx) error {
 	user_id := c.ParamsID("user_id")
 	id_token := fmt.Sprintf("%v", c.Locals("user_id"))
 	if user_id != id_token {
-		err := fmt.Errorf("user_id or token is incorrect (repeat logon)")
+		err := fmt.Errorf("user_id or token is incorrect (repeat login)")
 		log.Println("error", err)
 		return c.Status(http.StatusInternalServerError).JSON(err_response(err))
 	}
@@ -131,7 +131,7 @@ func (h *userHandle) UpdateUser_api(ctx *fiber.Ctx) error {
 	user_token := fmt.Sprintf("%v", c.Locals("username"))
 
 	if (user_token != "admin") && (user_id != id_token) {
-		err := fmt.Errorf("user_id or token is incorrect (repeat logon)")
+		err := fmt.Errorf("user_id or token is incorrect (repeat login)")
 		log.Println("error", err)
 		return c.Status(http.StatusInternalServerError).JSON(err_response(err))
 	}
