@@ -8,7 +8,7 @@ import (
 const (
 	//mongodb://localhost:27017
 	mongoDBEnPint = "mongodb://admin:admin%40inet%21@203.151.199.181:27017"
-	portWebServie = ":8000"
+	portWebServie = "localhost:8000"
 )
 
 func main() {
