@@ -2,7 +2,6 @@ package handler
 
 import (
 	"fmt"
-	"go_test/config"
 	"go_test/service"
 	"log"
 	"net/http"
@@ -15,13 +14,8 @@ type userHandle struct {
 	userSrc service.UserService
 }
 
-func NewUserHandle(userSrc service.UserService) UserHandle {
+func NewUserHandler(userSrc service.UserService) UserHandle {
 	return &userHandle{userSrc: userSrc}
-}
-
-func connectionFW(c *fiber.Ctx) *config.FiberCtx {
-	context := config.NewFiberCtx(c)
-	return context
 }
 
 func (h *userHandle) CreateUser_api(ctx *fiber.Ctx) error {

@@ -12,16 +12,3 @@ type UserHandle interface {
 	DeleteUser_api(c *fiber.Ctx) error
 	LoginUser_api(c *fiber.Ctx) error
 }
-
-type MessageResponse struct {
-	Status  bool       `json:"status"`
-	Message string     `json:"message"`
-	Data    *fiber.Map `json:"data"`
-}
-
-func err_response(err error) MessageResponse {
-	return MessageResponse{
-		Status:  false,
-		Message: "error",
-		Data:    &fiber.Map{"data": err.Error()}}
-}

@@ -18,13 +18,8 @@ func NewUserRepositoryDB(db *mongo.Client) UserRepository {
 	return &userRepositoryDB{db: db}
 }
 
-const (
-	DBName     = "kong_test" //kong_test
-	collection = "users"     //user2
-)
-
 func (r *userRepositoryDB) getCollection() *mongo.Collection {
-	collection := r.db.Database(DBName).Collection(collection)
+	collection := r.db.Database(DBName_user).Collection(collection_user)
 	return collection
 }
 

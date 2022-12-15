@@ -9,6 +9,11 @@ type UserRepository interface {
 	Delete(user_id string) (*User_db, error)
 }
 
+const (
+	DBName_user     = "kong_test" //kong_test
+	collection_user = "users"     //user2
+)
+
 type User_db struct {
 	UserID           string   `json:"userID" bson:"userID"`
 	Username         string   `json:"username" bson:"username" validate:"required"`
