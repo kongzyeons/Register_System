@@ -6,8 +6,7 @@ import (
 )
 
 const (
-	//mongodb://localhost:27017
-	mongoDBEnPint = "mongodb://admin:admin%40inet%21@203.151.199.181:27017"
+	mongoDBEnPint = "//mongodb://localhost:27017"
 	portWebServie = "localhost:8000"
 )
 
